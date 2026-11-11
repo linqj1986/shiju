@@ -1,0 +1,10 @@
+# 临时验证文件
+tmp-verify/
+# CLI 直传的构建产物（Git 部署用不到）
+dist-site/
+# CLI 本地缓存（含账号信息）
+.edgeone/
+.wrangler/
+# 系统文件
+.DS_Store
+Thumbs.db
