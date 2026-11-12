@@ -1,10 +1,11 @@
 /**
  * 《纳瓦尔宝典》金句数据
- * 新增书籍：复制本文件，改 id 和内容，然后在 index.html 里加一行 <script>
+ * 新增书籍：复制本文件，改 id / category（分类名，新分类会自动出现在书架标签里）和内容，然后在 index.html 里加一行 <script>
  */
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'the-almanack-of-naval-ravikant',
+  category: '财经',
   title: '纳瓦尔宝典',
   originalTitle: 'The Almanack of Naval Ravikant',
   author: '埃里克·乔根森 编',

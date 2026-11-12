@@ -1,10 +1,11 @@
 /**
  * 《黑天鹅》金句数据
- * 新增书籍：复制本文件，改 id 和内容，然后在 index.html 里加一行 <script>
+ * 新增书籍：复制本文件，改 id / category（分类名，新分类会自动出现在书架标签里）和内容，然后在 index.html 里加一行 <script>
  */
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'the-black-swan',
+  category: '财经',
   title: '黑天鹅',
   originalTitle: 'The Black Swan: The Impact of the Highly Improbable',
   author: '纳西姆·尼古拉斯·塔勒布',

@@ -1,10 +1,11 @@
 /**
  * 《反脆弱》金句数据
- * 新增书籍：复制本文件，改 id 和内容，然后在 index.html 里加一行 <script>
+ * 新增书籍：复制本文件，改 id / category（分类名，新分类会自动出现在书架标签里）和内容，然后在 index.html 里加一行 <script>
  */
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'antifragile',
+  category: '财经',
   title: '反脆弱',
   originalTitle: 'Antifragile: Things That Gain from Disorder',
   author: '纳西姆·尼古拉斯·塔勒布',

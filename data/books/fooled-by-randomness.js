@@ -1,10 +1,11 @@
 /**
  * 《随机漫步的傻瓜》金句数据
- * 新增书籍：复制本文件，改 id 和内容，然后在 index.html 里加一行 <script>
+ * 新增书籍：复制本文件，改 id / category（分类名，新分类会自动出现在书架标签里）和内容，然后在 index.html 里加一行 <script>
  */
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'fooled-by-randomness',
+  category: '财经',
   title: '随机漫步的傻瓜',
   originalTitle: 'Fooled by Randomness: The Hidden Role of Chance in Life and the Markets',
   author: '纳西姆·尼古拉斯·塔勒布',

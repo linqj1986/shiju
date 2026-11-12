@@ -1,10 +1,11 @@
 /**
  * 《创造性破坏的力量》金句数据
- * 新增书籍：复制本文件，改 id 和内容，然后在 index.html 里加一行 <script>
+ * 新增书籍：复制本文件，改 id / category（分类名，新分类会自动出现在书架标签里）和内容，然后在 index.html 里加一行 <script>
  */
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'creative-destruction',
+  category: '财经',
   title: '创造性破坏的力量',
   originalTitle: 'The Power of Creative Destruction',
   author: '[法] 菲利普·阿吉翁 瑟琳·安托南 西蒙·布内尔',

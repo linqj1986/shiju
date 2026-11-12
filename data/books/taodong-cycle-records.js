@@ -1,10 +1,11 @@
 /**
  * 《涛动周期录》金句数据
- * 新增书籍：复制本文件，改 id 和内容，然后在 index.html 里加一行 <script>
+ * 新增书籍：复制本文件，改 id / category（分类名，新分类会自动出现在书架标签里）和内容，然后在 index.html 里加一行 <script>
  */
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'taodong-cycle-records',
+  category: '财经',
   title: '涛动周期录',
   originalTitle: '涛动周期录：周期波动尽平生',
   author: '周金涛',

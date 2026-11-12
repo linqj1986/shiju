@@ -17,7 +17,17 @@
   /* ---------- 书架视图 ---------- */
   function renderShelf() {
     document.title = '拾句 · 每本书最值得记住的话';
-    var cards = BOOKS.map(function (b) {
+
+    var catOf = function (b) { return b.category || '未分类'; };
+
+    // 聚合分类（按首次出现顺序）
+    var cats = [];
+    BOOKS.forEach(function (b) {
+      if (cats.indexOf(catOf(b)) === -1) cats.push(catOf(b));
+    });
+    var current = cats[0];
+
+    function cardHtml(b) {
       return (
         '<a class="book-card" href="#/book/' + esc(b.id) + '">' +
           '<div class="book-cover" style="background:' + esc(b.gradient || 'linear-gradient(135deg,#666,#333)') + '">' +
@@ -36,14 +46,35 @@
           '</div>' +
         '</a>'
       );
-    }).join('');
+    }
 
-    app.innerHTML =
-      '<div class="shelf-head">' +
-        '<h1>书架</h1>' +
-        '<p>共 ' + BOOKS.length + ' 本 · ' + BOOKS.reduce(function (n, b) { return n + (b.quotes || []).length; }, 0) + ' 条金句 · ' + BOOKS.reduce(function (n, b) { return n + (b.models || []).length; }, 0) + ' 个方法论</p>' +
-      '</div>' +
-      '<div class="book-grid">' + cards + '</div>';
+    function draw() {
+      var list = BOOKS.filter(function (b) { return catOf(b) === current; });
+      var quotesN = list.reduce(function (n, b) { return n + (b.quotes || []).length; }, 0);
+      var modelsN = list.reduce(function (n, b) { return n + (b.models || []).length; }, 0);
+
+      app.innerHTML =
+        '<div class="shelf-head">' +
+          '<h1>书架</h1>' +
+          '<p>' + esc(current) + ' · ' + list.length + ' 本 · ' + quotesN + ' 条金句 · ' + modelsN + ' 个方法论</p>' +
+        '</div>' +
+        '<div class="tabs">' +
+          cats.map(function (c) {
+            var n = BOOKS.filter(function (b) { return catOf(b) === c; }).length;
+            return '<button type="button" class="tab' + (c === current ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + ' ' + n + '</button>';
+          }).join('') +
+        '</div>' +
+        '<div class="book-grid">' + list.map(cardHtml).join('') + '</div>';
+
+      app.querySelectorAll('.tab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          current = btn.getAttribute('data-cat');
+          draw();
+        });
+      });
+    }
+
+    draw();
     window.scrollTo(0, 0);
   }
 
