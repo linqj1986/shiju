@@ -5,7 +5,7 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'fooled-by-randomness',
-  category: '财经',
+  category: '思维决策',
   title: '随机漫步的傻瓜',
   originalTitle: 'Fooled by Randomness: The Hidden Role of Chance in Life and the Markets',
   author: '纳西姆·尼古拉斯·塔勒布',

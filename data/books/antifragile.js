@@ -5,7 +5,7 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'antifragile',
-  category: '财经',
+  category: '思维决策',
   title: '反脆弱',
   originalTitle: 'Antifragile: Things That Gain from Disorder',
   author: '纳西姆·尼古拉斯·塔勒布',

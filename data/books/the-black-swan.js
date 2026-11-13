@@ -5,7 +5,7 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'the-black-swan',
-  category: '财经',
+  category: '思维决策',
   title: '黑天鹅',
   originalTitle: 'The Black Swan: The Impact of the Highly Improbable',
   author: '纳西姆·尼古拉斯·塔勒布',
