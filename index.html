@@ -14,6 +14,7 @@
         <span class="brand-mark">拾句</span>
         <span class="brand-sub">每本书最值得记住的话</span>
       </a>
+      <div class="header-auth" id="auth-area"></div>
     </div>
   </header>
 
@@ -24,6 +25,27 @@
       <p>拾句 · 纯静态 · 数据驱动 —— 新增一本书只需在 <code>data/books/</code> 加一个文件</p>
     </div>
   </footer>
+
+  <!-- 登录弹窗 -->
+  <dialog id="login-dialog" aria-labelledby="login-title">
+    <form id="login-form">
+      <h2 id="login-title">登录拾句</h2>
+      <p class="login-sub">登录后可收藏书籍，并在书架查看「我的收藏」</p>
+      <p class="login-msg" id="login-msg" role="status"></p>
+      <div class="field">
+        <label for="login-user">用户名</label>
+        <input id="login-user" type="text" autocomplete="username" required autofocus>
+      </div>
+      <div class="field">
+        <label for="login-pass">密码</label>
+        <input id="login-pass" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="login-actions">
+        <button type="button" class="btn-ghost" id="login-cancel">取消</button>
+        <button type="submit" class="btn-primary">登录</button>
+      </div>
+    </form>
+  </dialog>
 
   <!-- 书籍数据：新增书籍在此追加一行 -->
   <script src="data/books/poor-charlies-almanack.js"></script>

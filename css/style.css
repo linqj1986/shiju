@@ -57,6 +57,26 @@ body {
 
 .brand-sub { font-size: 13px; color: var(--ink-light); }
 
+/* 头部登录区 */
+.header-auth { margin-left: auto; display: flex; align-items: center; gap: 10px; align-self: center; }
+
+.user-name { font-size: 13px; color: var(--ink-light); }
+
+.btn-primary, .btn-ghost {
+  padding: 7px 18px;
+  font-size: 14px;
+  font-family: var(--sans);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .2s, background .2s, border-color .2s;
+}
+
+.btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+.btn-primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+
+.btn-ghost { background: transparent; color: var(--ink-light); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--accent-deep); border-color: var(--accent); }
+
 /* ============ 书架视图 ============ */
 .shelf-head { padding: 48px 0 28px; }
 
@@ -88,9 +108,37 @@ body {
   flex-direction: column;
   text-decoration: none;
   color: inherit;
+  position: relative;
 }
 
 .book-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(60, 50, 30, .13); }
+
+.book-main { display: flex; flex-direction: column; flex: 1; text-decoration: none; color: inherit; }
+
+/* 收藏按钮 */
+.fav-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  background: rgba(255, 255, 255, .88);
+  color: #b9b2a4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+  transition: color .2s, transform .2s;
+}
+
+.fav-btn:hover { transform: scale(1.12); }
+.fav-btn.faved { color: #e0a92e; }
 
 .book-cover {
   height: 150px;
@@ -190,6 +238,25 @@ body {
 }
 
 .hero-tags .tag { background: rgba(255,255,255,.18); color: #fff; }
+
+.hero-fav {
+  margin-top: 8px;
+  padding: 8px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: var(--sans);
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, .45);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .2s;
+}
+
+.hero-fav:hover { background: rgba(255, 255, 255, .28); }
+.hero-fav.faved { background: #e0a92e; border-color: #e0a92e; }
 
 /* 标签页 */
 .tabs { display: flex; gap: 10px; padding: 26px 0 0; }
@@ -353,6 +420,56 @@ body {
   background: var(--accent);
   transform: rotate(45deg);
 }
+
+/* ============ 登录弹窗 ============ */
+dialog:modal { overscroll-behavior: contain; }
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(43, 42, 38, .5);
+}
+
+#login-dialog {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 34px 36px 30px;
+  width: min(92vw, 360px);
+  box-shadow: 0 18px 50px rgba(30, 25, 12, .25);
+  background: var(--card);
+  color: var(--ink);
+}
+
+#login-dialog h2 {
+  font-family: var(--serif);
+  font-size: 22px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.login-sub { font-size: 13px; color: var(--ink-light); margin-bottom: 14px; }
+
+.login-msg { font-size: 13px; color: #b03a2e; min-height: 20px; }
+
+.field { margin-bottom: 14px; }
+
+.field label { display: block; font-size: 13px; color: var(--ink-light); margin-bottom: 6px; }
+
+.field input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 15px;
+  font-family: var(--sans);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(176, 141, 62, .15); }
+
+.login-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
 /* ============ 底部 ============ */
 .site-footer {

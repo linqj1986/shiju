@@ -14,42 +14,154 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /* ---------- 登录与收藏（纯前端 + localStorage） ---------- */
+  var USER_KEY = 'shiju-user';
+  var FAV_KEY = 'shiju-favs';
+  var ACCOUNT = { name: 'admin', pass: 'admin' };
+  var FAV_CAT = '我的收藏';
+  var pendingFavId = null;
+
+  function isLoggedIn() { return localStorage.getItem(USER_KEY) === ACCOUNT.name; }
+
+  function favs() {
+    try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function saveFavs(list) { localStorage.setItem(FAV_KEY, JSON.stringify(list)); }
+  function isFav(id) { return favs().indexOf(id) !== -1; }
+
+  /* 远端收藏同步（Cloudflare Pages Functions + KV；API 不可用时自动降级为纯本地） */
+  function pullFavs() {
+    if (!isLoggedIn()) return Promise.resolve(false);
+    return fetch('/api/favs?user=' + encodeURIComponent(localStorage.getItem(USER_KEY)))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && Array.isArray(data.favs)) {
+          saveFavs(data.favs);
+          return true;
+        }
+        return false;
+      })
+      .catch(function () { return false; });
+  }
+
+  function pushFavs() {
+    if (!isLoggedIn()) return;
+    fetch('/api/favs', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: ACCOUNT.name, pass: ACCOUNT.pass, favs: favs() })
+    }).catch(function () { /* 同步失败：保留本地状态，下次登录以远端为准 */ });
+  }
+
+  function toggleFav(id) {
+    var list = favs();
+    var i = list.indexOf(id);
+    if (i === -1) list.push(id); else list.splice(i, 1);
+    saveFavs(list);
+    pushFavs();
+    return i === -1;
+  }
+
+  function renderAuthArea() {
+    var box = document.getElementById('auth-area');
+    if (isLoggedIn()) {
+      box.innerHTML =
+        '<span class="user-name">' + esc(localStorage.getItem(USER_KEY)) + '</span>' +
+        '<button type="button" class="btn-ghost" id="logout-btn">退出</button>';
+      document.getElementById('logout-btn').addEventListener('click', function () {
+        localStorage.removeItem(USER_KEY);
+        renderAuthArea();
+        route();
+      });
+    } else {
+      box.innerHTML = '<button type="button" class="btn-primary" id="login-btn">登录</button>';
+      document.getElementById('login-btn').addEventListener('click', openLogin);
+    }
+  }
+
+  function openLogin() {
+    var dlg = document.getElementById('login-dialog');
+    document.getElementById('login-msg').textContent = '';
+    document.getElementById('login-form').reset();
+    dlg.showModal();
+  }
+
+  function setupLogin() {
+    var dlg = document.getElementById('login-dialog');
+    var form = document.getElementById('login-form');
+    var msg = document.getElementById('login-msg');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var user = document.getElementById('login-user').value.trim();
+      var pass = document.getElementById('login-pass').value;
+      if (user === ACCOUNT.name && pass === ACCOUNT.pass) {
+        localStorage.setItem(USER_KEY, user);
+        dlg.close();
+        renderAuthArea();
+        route();
+        // 先拉取远端收藏（覆盖本地），再补发登录前待收藏的操作
+        pullFavs().then(function () {
+          var pending = pendingFavId;
+          pendingFavId = null;
+          if (pending) toggleFav(pending);
+          route();
+        });
+      } else {
+        msg.textContent = '用户名或密码不正确';
+      }
+    });
+
+    document.getElementById('login-cancel').addEventListener('click', function () {
+      pendingFavId = null;
+      dlg.close();
+    });
+  }
+
   /* ---------- 书架视图 ---------- */
   function renderShelf() {
     document.title = '拾句 · 每本书最值得记住的话';
 
     var catOf = function (b) { return b.category || '未分类'; };
 
-    // 聚合分类（按首次出现顺序）
+    // 聚合分类（按首次出现顺序）；登录后追加「我的收藏」
     var cats = [];
     BOOKS.forEach(function (b) {
       if (cats.indexOf(catOf(b)) === -1) cats.push(catOf(b));
     });
+    if (isLoggedIn()) cats.push(FAV_CAT);
     var current = cats[0];
 
     function cardHtml(b) {
+      var fav = isFav(b.id);
       return (
-        '<a class="book-card" href="#/book/' + esc(b.id) + '">' +
-          '<div class="book-cover" style="background:' + esc(b.gradient || 'linear-gradient(135deg,#666,#333)') + '">' +
-            '<span class="cover-title">' + (b.emoji ? esc(b.emoji) + ' ' : '') + '</span>' +
-          '</div>' +
-          '<div class="book-body">' +
-            '<div class="book-title">' + esc(b.title) + '</div>' +
-            '<div class="book-author">' + esc(b.author || '') + '</div>' +
-            '<div class="book-intro">' + esc(b.intro || '') + '</div>' +
-            '<div class="book-meta">' +
-              '<div class="tag-list">' +
-                (b.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') +
-              '</div>' +
-              '<span class="quote-count">' + (b.quotes || []).length + ' 句' + ((b.models || []).length ? ' · ' + b.models.length + ' 个方法论' : '') + '</span>' +
+        '<article class="book-card">' +
+          '<button type="button" class="fav-btn' + (fav ? ' faved' : '') + '" data-fav="' + esc(b.id) + '"' +
+            ' aria-pressed="' + fav + '" aria-label="' + (fav ? '取消收藏' : '收藏') + esc(b.title) + '">★</button>' +
+          '<a class="book-main" href="#/book/' + esc(b.id) + '">' +
+            '<div class="book-cover" style="background:' + esc(b.gradient || 'linear-gradient(135deg,#666,#333)') + '">' +
+              '<span class="cover-title">' + (b.emoji ? esc(b.emoji) + ' ' : '') + '</span>' +
             '</div>' +
-          '</div>' +
-        '</a>'
+            '<div class="book-body">' +
+              '<div class="book-title">' + esc(b.title) + '</div>' +
+              '<div class="book-author">' + esc(b.author || '') + '</div>' +
+              '<div class="book-intro">' + esc(b.intro || '') + '</div>' +
+              '<div class="book-meta">' +
+                '<div class="tag-list">' +
+                  (b.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') +
+                '</div>' +
+                '<span class="quote-count">' + (b.quotes || []).length + ' 句' + ((b.models || []).length ? ' · ' + b.models.length + ' 个方法论' : '') + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</a>' +
+        '</article>'
       );
     }
 
     function draw() {
-      var list = BOOKS.filter(function (b) { return catOf(b) === current; });
+      var list = current === FAV_CAT
+        ? BOOKS.filter(function (b) { return isFav(b.id); })
+        : BOOKS.filter(function (b) { return catOf(b) === current; });
       var quotesN = list.reduce(function (n, b) { return n + (b.quotes || []).length; }, 0);
       var modelsN = list.reduce(function (n, b) { return n + (b.models || []).length; }, 0);
 
@@ -60,15 +172,26 @@
         '</div>' +
         '<div class="tabs">' +
           cats.map(function (c) {
-            var n = BOOKS.filter(function (b) { return catOf(b) === c; }).length;
+            var n = c === FAV_CAT ? favs().length : BOOKS.filter(function (b) { return catOf(b) === c; }).length;
             return '<button type="button" class="tab' + (c === current ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + ' ' + n + '</button>';
           }).join('') +
         '</div>' +
-        '<div class="book-grid">' + list.map(cardHtml).join('') + '</div>';
+        (list.length
+          ? '<div class="book-grid">' + list.map(cardHtml).join('') + '</div>'
+          : '<p class="filter-empty">还没有收藏的书，点击书卡右上角的 ★ 收藏喜欢的书</p>');
 
       app.querySelectorAll('.tab').forEach(function (btn) {
         btn.addEventListener('click', function () {
           current = btn.getAttribute('data-cat');
+          draw();
+        });
+      });
+
+      app.querySelectorAll('.fav-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = btn.getAttribute('data-fav');
+          if (!isLoggedIn()) { pendingFavId = id; openLogin(); return; }
+          toggleFav(id);
           draw();
         });
       });
@@ -82,6 +205,7 @@
   function renderBook(book) {
     document.title = book.title + ' · 拾句';
     var quotes = book.quotes || [];
+    var fav = isFav(book.id);
 
     var quoteCards = quotes.map(function (q, i) {
       var examples = (q.examples || []).map(function (e) {
@@ -175,6 +299,9 @@
           '<div class="tag-list hero-tags">' +
             (book.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') +
           '</div>' +
+          '<button type="button" class="hero-fav' + (fav ? ' faved' : '') + '" aria-pressed="' + fav + '">' +
+            (fav ? '★ 已收藏' : '☆ 收藏本书') +
+          '</button>' +
         '</div>' +
       '</section>' +
       '<div class="container">' +
@@ -232,6 +359,15 @@
 
     input.addEventListener('input', applyFilter);
 
+    var heroFavBtn = document.querySelector('.hero-fav');
+    heroFavBtn.addEventListener('click', function () {
+      if (!isLoggedIn()) { pendingFavId = book.id; openLogin(); return; }
+      var nowFav = toggleFav(book.id);
+      heroFavBtn.classList.toggle('faved', nowFav);
+      heroFavBtn.setAttribute('aria-pressed', String(nowFav));
+      heroFavBtn.textContent = nowFav ? '★ 已收藏' : '☆ 收藏本书';
+    });
+
     window.scrollTo(0, 0);
   }
 
@@ -247,5 +383,9 @@
   }
 
   window.addEventListener('hashchange', route);
+  setupLogin();
+  renderAuthArea();
   route();
+  // 已登录：打开页面时拉一次远端收藏，保持多设备一致
+  if (isLoggedIn()) pullFavs().then(function (changed) { if (changed) route(); });
 })();
