@@ -7,14 +7,12 @@
 ```
 ├── index.html              # 入口（引入数据文件 + app.js）
 ├── css/style.css           # 样式
-├── js/app.js               # 渲染 + hash 路由
-└── data/books/             # 书籍数据，每本书一个文件（自注册）
+├── js/app.js               # 渲染 + hash 路由 + 登录/收藏
+├── functions/api/favs.js   # Cloudflare Pages Function：收藏同步 API（KV 存储）
+└── data/books/             # 书籍数据，每本书一个文件（自注册，共 24 本）
     ├── poor-charlies-almanack.js
-    ├── the-almanack-of-naval-ravikant.js
-    ├── fooled-by-randomness.js
-    ├── the-black-swan.js
-    ├── antifragile.js
-    └── skin-in-the-game.js
+    ├── ...
+    └── the-crowd.js
 ```
 
 ## 如何新增一本书
@@ -29,7 +27,29 @@
 
 完成。书架自动出现新书。
 
+## 登录与收藏
+
+- 默认账号 `admin` / `admin`（纯前端模拟登录，存 localStorage）
+- 登录后书卡右上角 ★ 和详情页「收藏本书」按钮可用，书架出现「我的收藏」分类
+- 未登录点收藏会先弹登录框，登录成功自动完成刚才的收藏
+- 收藏存在 localStorage（`shiju-favs`），API 不可用时自动降级为纯本地模式
+
+## 跨设备同步（Cloudflare Pages + KV）
+
+站点部署在 Cloudflare Pages，收藏通过 Pages Function `/api/favs` 读写 KV，换设备登录后自动拉取：
+
+- GET `/api/favs?user=admin` 拉取；PUT `/api/favs`（body 带 user/pass/favs）推送
+- 登录时 / 已登录打开页面时拉取远端覆盖本地；每次收藏变更实时推送
+
+一次性配置（Pages 控制台）：
+
+1. Workers & Pages → KV → 创建 namespace
+2. Pages 项目 → Settings → Bindings → 添加 KV binding，变量名 **FAVS**
+3. Deployments → 最新部署 → Retry deployment（重新部署后 binding 生效）
+
+未绑定 KV 时 API 返回 500 并提示配置方法，站点功能退化为纯本地收藏。
+
 ## 使用
 
-直接双击 `index.html` 即可（file:// 协议可用，无需服务器）。
-部署：整个目录上传任意静态托管（GitHub Pages / Nginx / Vercel）即可。
+直接双击 `index.html` 即可（file:// 协议可用，无需服务器；跨设备同步需在线部署）。
+部署：推送 git 后 Cloudflare Pages 自动构建（仓库已关联）。

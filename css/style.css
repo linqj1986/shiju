@@ -422,7 +422,8 @@ body {
 }
 
 /* ============ 登录弹窗 ============ */
-dialog:modal { overscroll-behavior: contain; }
+/* margin:auto 恢复被顶部 * { margin:0 } reset 清掉的 UA 居中（dialog 居中依赖 margin:auto + inset:0） */
+dialog:modal { margin: auto; overscroll-behavior: contain; }
 dialog::backdrop {
   overflow: hidden;
   overscroll-behavior: contain;
