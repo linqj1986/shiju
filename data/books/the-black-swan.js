@@ -5,6 +5,7 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'the-black-swan',
+  year: 2007,
   category: '思维决策',
   title: '黑天鹅',
   originalTitle: 'The Black Swan: The Impact of the Highly Improbable',

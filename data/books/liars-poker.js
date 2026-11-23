@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'liars-poker',
-    category: '财经',
+    year: 1989,
+    category: '市场与理财',
     title: '说谎者的扑克牌',
     originalTitle: 'Liar\'s Poker',
     author: '[美] 迈克尔·刘易斯',

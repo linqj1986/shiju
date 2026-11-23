@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'the-most-important-thing',
-    category: '财经',
+    year: 2011,
+    category: '投资与选股',
     title: '投资最重要的事',
     originalTitle: 'The Most Important Thing',
     author: '[美] 霍华德·马克斯',

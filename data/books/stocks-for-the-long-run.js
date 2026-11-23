@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'stocks-for-the-long-run',
-    category: '财经',
+    year: 1994,
+    category: '市场与理财',
     title: '股市长线法宝',
     originalTitle: 'Stocks for the Long Run',
     author: '[美] 杰里米·西格尔',

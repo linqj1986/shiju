@@ -144,7 +144,7 @@
             '</div>' +
             '<div class="book-body">' +
               '<div class="book-title">' + esc(b.title) + '</div>' +
-              '<div class="book-author">' + esc(b.author || '') + '</div>' +
+              '<div class="book-author">' + esc(b.author || '') + (b.year ? ' · ' + b.year : '') + '</div>' +
               '<div class="book-intro">' + esc(b.intro || '') + '</div>' +
               '<div class="book-meta">' +
                 '<div class="tag-list">' +
@@ -162,6 +162,8 @@
       var list = current === FAV_CAT
         ? BOOKS.filter(function (b) { return isFav(b.id); })
         : BOOKS.filter(function (b) { return catOf(b) === current; });
+      // 按出版时间排序：越新越靠前（filter 已返回新数组，不影响 BOOKS 原始顺序）
+      list.sort(function (a, b) { return (b.year || 0) - (a.year || 0); });
       var quotesN = list.reduce(function (n, b) { return n + (b.quotes || []).length; }, 0);
       var modelsN = list.reduce(function (n, b) { return n + (b.models || []).length; }, 0);
 
@@ -294,7 +296,7 @@
           '<div class="hero-emoji">' + esc(book.emoji || '📘') + '</div>' +
           '<h1>' + esc(book.title) + '</h1>' +
           (book.originalTitle ? '<div class="hero-original">' + esc(book.originalTitle) + '</div>' : '') +
-          (book.author ? '<div class="hero-original">' + esc(book.author) + '</div>' : '') +
+          (book.author ? '<div class="hero-original">' + esc(book.author) + (book.year ? ' · ' + book.year : '') + '</div>' : '') +
           '<div class="hero-intro">' + esc(book.intro || '') + '</div>' +
           '<div class="tag-list hero-tags">' +
             (book.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') +

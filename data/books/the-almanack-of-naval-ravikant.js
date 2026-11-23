@@ -5,7 +5,8 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'the-almanack-of-naval-ravikant',
-  category: '财经',
+  year: 2020,
+  category: '市场与理财',
   title: '纳瓦尔宝典',
   originalTitle: 'The Almanack of Naval Ravikant',
   author: '埃里克·乔根森 编',

@@ -5,7 +5,8 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'creative-destruction',
-  category: '财经',
+  year: 2001,
+  category: '市场与理财',
   title: '创造性破坏的力量',
   originalTitle: 'The Power of Creative Destruction',
   author: '[法] 菲利普·阿吉翁 瑟琳·安托南 西蒙·布内尔',

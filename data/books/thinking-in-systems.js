@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'thinking-in-systems',
+    year: 2008,
     category: '思维决策',
     title: '系统之美',
     originalTitle: 'Thinking in Systems: A Primer',

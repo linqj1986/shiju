@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'duan-yongping-investment-qa',
-    category: '财经',
+    year: 2021,
+    category: '投资与选股',
     title: '段永平投资问答录',
     originalTitle: '',
     author: '段永平',

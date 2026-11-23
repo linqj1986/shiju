@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'the-willpower-instinct',
+    year: 2011,
     category: '个人成长',
     title: '自控力',
     originalTitle: 'The Willpower Instinct',

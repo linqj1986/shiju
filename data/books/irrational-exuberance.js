@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'irrational-exuberance',
-    category: '财经',
+    year: 2000,
+    category: '市场与理财',
     title: '非理性繁荣',
     originalTitle: 'Irrational Exuberance',
     author: '[美] 罗伯特·席勒',

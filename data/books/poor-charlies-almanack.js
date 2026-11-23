@@ -5,7 +5,8 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'poor-charlies-almanack',
-  category: '财经',
+  year: 2005,
+  category: '投资与选股',
   title: '穷查理宝典',
   originalTitle: "Poor Charlie's Almanack",
   author: '彼得·考夫曼 编',

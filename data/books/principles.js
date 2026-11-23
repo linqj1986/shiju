@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'principles',
-    category: '财经',
+    year: 2017,
+    category: '投资与选股',
     title: '原则',
     originalTitle: 'Principles: Life and Work',
     author: '[美] 瑞·达利欧',

@@ -5,7 +5,8 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'trading-for-a-living',
-  category: '财经',
+  year: 1993,
+  category: '投资与选股',
   title: '以交易为生',
   originalTitle: 'Trading for a Living',
   author: '[美] 亚历山大·埃尔德',

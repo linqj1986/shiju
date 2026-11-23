@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'the-7-habits',
+    year: 1989,
     category: '个人成长',
     title: '高效能人士的七个习惯',
     originalTitle: 'The 7 Habits of Highly Effective People',

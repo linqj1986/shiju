@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'the-crowd',
+    year: 1895,
     category: '思维决策',
     title: '乌合之众',
     originalTitle: 'The Crowd: A Study of the Popular Mind',

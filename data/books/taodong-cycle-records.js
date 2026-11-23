@@ -5,7 +5,8 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'taodong-cycle-records',
-  category: '财经',
+  year: 2016,
+  category: '市场与理财',
   title: '涛动周期录',
   originalTitle: '涛动周期录：周期波动尽平生',
   author: '周金涛',

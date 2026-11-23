@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'influence',
+    year: 1984,
     category: '思维决策',
     title: '影响力',
     originalTitle: 'Influence: The Psychology of Persuasion',

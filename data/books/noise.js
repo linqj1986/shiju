@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'noise',
+    year: 2021,
     category: '思维决策',
     title: '噪声',
     originalTitle: 'Noise: A Flaw in Human Judgment',

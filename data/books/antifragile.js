@@ -5,6 +5,7 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'antifragile',
+  year: 2012,
   category: '思维决策',
   title: '反脆弱',
   originalTitle: 'Antifragile: Things That Gain from Disorder',

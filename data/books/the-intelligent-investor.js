@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'the-intelligent-investor',
-    category: '财经',
+    year: 1949,
+    category: '投资与选股',
     title: '聪明的投资者',
     originalTitle: 'The Intelligent Investor',
     author: '[美] 本杰明·格雷厄姆',

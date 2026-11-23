@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'a-random-walk-down-wall-street',
-    category: '财经',
+    year: 1973,
+    category: '市场与理财',
     title: '漫步华尔街',
     originalTitle: 'A Random Walk Down Wall Street',
     author: '[美] 伯顿·马尔基尔',

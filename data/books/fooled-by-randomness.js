@@ -5,6 +5,7 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'fooled-by-randomness',
+  year: 2001,
   category: '思维决策',
   title: '随机漫步的傻瓜',
   originalTitle: 'Fooled by Randomness: The Hidden Role of Chance in Life and the Markets',

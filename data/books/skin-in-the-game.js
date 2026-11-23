@@ -5,6 +5,7 @@
 window.BOOKS = window.BOOKS || [];
 window.BOOKS.push({
   id: 'skin-in-the-game',
+  year: 2018,
   category: '思维决策',
   title: '非对称风险',
   originalTitle: 'Skin in the Game: Hidden Asymmetries in Daily Life',

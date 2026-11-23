@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'the-psychology-of-money',
-    category: '财经',
+    year: 2020,
+    category: '市场与理财',
     title: '金钱心理学',
     originalTitle: 'The Psychology of Money',
     author: '[美] 摩根·豪塞尔',

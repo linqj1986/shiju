@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'reminiscences-of-a-stock-operator',
-    category: '财经',
+    year: 1923,
+    category: '投资与选股',
     title: '股票大作手回忆录',
     originalTitle: 'Reminiscences of a Stock Operator',
     author: '[美] 埃德温·勒菲弗',

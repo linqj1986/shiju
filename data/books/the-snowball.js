@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'the-snowball',
-    category: '财经',
+    year: 2008,
+    category: '投资与选股',
     title: '滚雪球',
     originalTitle: 'The Snowball: Warren Buffett and the Business of Life',
     author: '[美] 艾丽斯·施罗德',

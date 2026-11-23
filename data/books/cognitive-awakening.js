@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'cognitive-awakening',
+    year: 2020,
     category: '个人成长',
     title: '认知觉醒',
     originalTitle: '',

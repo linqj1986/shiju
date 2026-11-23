@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'the-essays-of-warren-buffett',
-    category: '财经',
+    year: 1997,
+    category: '投资与选股',
     title: '巴菲特致股东的信',
     originalTitle: 'The Essays of Warren Buffett: Lessons for Corporate America',
     author: '[美] 沃伦·巴菲特 著 / 劳伦斯·坎宁安 编',

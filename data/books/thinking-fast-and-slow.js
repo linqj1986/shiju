@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'thinking-fast-and-slow',
+    year: 2011,
     category: '思维决策',
     title: '思考，快与慢',
     originalTitle: 'Thinking, Fast and Slow',

@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'superforecasting',
+    year: 2015,
     category: '思维决策',
     title: '超预测',
     originalTitle: 'Superforecasting: The Art and Science of Prediction',

@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'the-road-less-traveled',
+    year: 1978,
     category: '个人成长',
     title: '少有人走的路',
     originalTitle: 'The Road Less Traveled',

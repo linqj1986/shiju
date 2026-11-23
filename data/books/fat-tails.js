@@ -4,6 +4,7 @@
 
   window.BOOKS.push({
     id: 'fat-tails',
+    year: 2020,
     category: '思维决策',
     title: '肥尾效应',
     originalTitle: 'Statistical Consequences of Fat Tails',

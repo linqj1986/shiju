@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'poor-economics',
-    category: '财经',
+    year: 2011,
+    category: '市场与理财',
     title: '贫穷的本质',
     originalTitle: 'Poor Economics: A Radical Rethinking of Way to Fight Global Poverty',
     author: '[印] 阿比吉特·班纳吉 [法] 埃斯特·迪弗洛',

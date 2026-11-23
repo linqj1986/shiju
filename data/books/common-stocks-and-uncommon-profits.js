@@ -4,7 +4,8 @@
 
   window.BOOKS.push({
     id: 'common-stocks-and-uncommon-profits',
-    category: '财经',
+    year: 1958,
+    category: '投资与选股',
     title: '怎样选择成长股',
     originalTitle: 'Common Stocks and Uncommon Profits',
     author: '[美] 菲利普·费雪',
