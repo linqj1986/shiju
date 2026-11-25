@@ -1,6 +1,7 @@
 /* 拾句 - 纯静态书籍金句站
- * 路由：#/           -> 书架
- *       #/book/{id}  -> 书籍详情
+ * 路由：#/                  -> 书架
+ *       #/book/{id}         -> 书籍详情（可带 ?q=关键词：预填页内筛选）
+ *       #/search?q=关键词   -> 全局搜索结果（搜索逻辑见 js/search.js）
  */
 (function () {
   'use strict';
@@ -12,6 +13,57 @@
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // 高亮关键词（re 由 ShijuSearch.run 返回）；只能用在文本位置，属性值里仍然用 esc
+  function hi(text, re) {
+    var s = String(text == null ? '' : text);
+    if (!re) return esc(s);
+    var out = '', last = 0, m;
+    re.lastIndex = 0;
+    while ((m = re.exec(s))) {
+      out += esc(s.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>';
+      last = m.index + m[0].length;
+    }
+    return out + esc(s.slice(last));
+  }
+
+  /* ---------- 头部搜索框 ---------- */
+  var siteHeader = document.querySelector('.site-header');
+  var searchForm = document.getElementById('search-form');
+  var searchInput = document.getElementById('search-input');
+  var searchToggle = document.getElementById('search-toggle');
+
+  // 窄屏：搜索框收在按钮里；在点击事件内展开并聚焦，移动端才会弹出键盘
+  function openSearch() {
+    siteHeader.classList.add('search-open');
+    searchToggle.setAttribute('aria-expanded', 'true');
+    searchInput.focus();
+  }
+
+  function closeSearch() {
+    siteHeader.classList.remove('search-open');
+    searchToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function setupSearch() {
+    searchToggle.addEventListener('click', function () {
+      if (siteHeader.classList.contains('search-open')) { closeSearch(); searchToggle.focus(); }
+      else openSearch();
+    });
+    // 走原生 submit：输入法选词的回车不会触发提交，无需再判断 isComposing
+    searchForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var kw = searchInput.value.trim();
+      if (!kw) return;
+      closeSearch();
+      location.hash = '#/search?q=' + encodeURIComponent(kw);
+    });
+    searchForm.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      closeSearch();
+      if (searchToggle.offsetParent) searchToggle.focus(); else searchInput.blur();
+    });
   }
 
   /* ---------- 登录与收藏（纯前端 + localStorage） ---------- */
@@ -203,70 +255,160 @@
     window.scrollTo(0, 0);
   }
 
+  /* ---------- 金句 / 方法论卡片（详情页与搜索结果共用；re 非空时高亮关键词） ---------- */
+  function exampleHtml(examples, H) {
+    return (examples || []).map(function (e) {
+      return (
+        '<div class="example-item">' +
+          '<span class="example-badge">' + H(e.title) + '</span>' +
+          '<p>' + H(e.text) + '</p>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function quoteCardHtml(q, i, re) {
+    var H = function (s) { return hi(s, re); };
+    var examples = exampleHtml(q.examples, H);
+
+    return (
+      '<article class="quote-card" data-search="' + esc([q.quote, q.theme, q.interpretation, q.source].concat(
+        (q.examples || []).map(function (e) { return e.title + ' ' + e.text; })
+      ).join(' ').toLowerCase()) + '">' +
+        '<div class="q-head">' +
+          '<span class="q-index">No.' + String(i + 1).padStart(2, '0') + '</span>' +
+          '<span class="q-theme">' + H(q.theme || '') + '</span>' +
+        '</div>' +
+        '<blockquote class="q-text">「' + H(q.quote) + '」</blockquote>' +
+        '<div class="q-source">—— ' + H(q.source || '') + '</div>' +
+        '<div class="q-section"><h3>解 读</h3><p>' + H(q.interpretation) + '</p></div>' +
+        (examples ? '<div class="q-section"><h3>应用举例</h3>' + examples + '</div>' : '') +
+      '</article>'
+    );
+  }
+
+  function modelCardHtml(m, i, re) {
+    var H = function (s) { return hi(s, re); };
+    var points = (m.points || []).map(function (p) {
+      return '<li>' + H(p) + '</li>';
+    }).join('');
+    var examples = exampleHtml(m.examples, H);
+
+    return (
+      '<article class="quote-card model-card" data-search="' + esc([m.name, m.en, m.source, m.core].concat(
+        m.points || []
+      ).concat(
+        (m.examples || []).map(function (e) { return e.title + ' ' + e.text; })
+      ).join(' ').toLowerCase()) + '">' +
+        '<div class="q-head">' +
+          '<span class="q-index">M' + String(i + 1).padStart(2, '0') + '</span>' +
+          '<span class="q-theme model-badge">方法论</span>' +
+        '</div>' +
+        '<h3 class="m-name">' + H(m.name) + '</h3>' +
+        (m.en ? '<div class="m-en">' + H(m.en) + '</div>' : '') +
+        '<div class="q-source">—— ' + H(m.source || '') + '</div>' +
+        '<div class="q-section"><h3>核心思想</h3><p>' + H(m.core) + '</p></div>' +
+        (points ? '<div class="q-section"><h3>要 点</h3><ul class="m-points">' + points + '</ul></div>' : '') +
+        (examples ? '<div class="q-section"><h3>应用举例</h3>' + examples + '</div>' : '') +
+      '</article>'
+    );
+  }
+
+  /* ---------- 搜索结果视图 ---------- */
+  var SEARCH_PAGE = 10;    // 每屏显示的书数
+  var SEARCH_PREVIEW = 3;  // 每本书预览的金句数 / 方法论数
+
+  function renderSearch(kw) {
+    var res = window.ShijuSearch.run(BOOKS, kw);
+    var re = res.re;
+    var groups = res.groups;
+    var shown = Math.min(SEARCH_PAGE, groups.length);
+    var quoteN = 0, modelN = 0;
+    groups.forEach(function (g) { quoteN += g.quotes.length; modelN += g.models.length; });
+
+    document.title = (kw ? '搜索「' + kw + '」' : '搜索') + ' · 拾句';
+    if (searchInput.value !== kw) searchInput.value = kw;
+    document.getElementById('search-status').textContent = kw ? '找到 ' + groups.length + ' 本书' : '';
+
+    // 一本书一组：封面 + 书名（进详情）+ 命中数 + 预览若干条；超出预览的给「查看全部」
+    function groupHtml(g) {
+      var b = g.book;
+      var qs = g.quotes.slice(0, SEARCH_PREVIEW);
+      var ms = g.models.slice(0, SEARCH_PREVIEW);
+      var total = g.quotes.length + g.models.length;
+      var href = '#/book/' + encodeURIComponent(b.id);
+      var cards = qs.map(function (i) { return quoteCardHtml(b.quotes[i], i, re); }).join('') +
+                  ms.map(function (i) { return modelCardHtml(b.models[i], i, re); }).join('');
+
+      return (
+        '<section class="search-group">' +
+          '<div class="sg-head">' +
+            '<span class="sg-cover" style="background:' + esc(b.gradient || 'linear-gradient(135deg,#666,#333)') + '" aria-hidden="true">' +
+              esc(b.emoji || '📘') +
+            '</span>' +
+            '<div class="sg-info">' +
+              '<a class="sg-title" href="' + href + '">' + hi(b.title, re) + '</a>' +
+              '<div class="sg-meta">' + esc(b.author || '') + ' · ' + esc(b.category || '未分类') +
+                (g.quotes.length ? ' · 金句 ' + g.quotes.length : '') +
+                (g.models.length ? ' · 方法论 ' + g.models.length : '') +
+                (g.meta ? ' · 命中书名 / 作者 / 标签' : '') +
+              '</div>' +
+            '</div>' +
+            (total > qs.length + ms.length
+              ? '<a class="sg-more" href="' + href + '?q=' + encodeURIComponent(kw) + '">查看全部 ' + total + ' 条 →</a>'
+              : '') +
+          '</div>' +
+          (cards ? '<div class="quote-list">' + cards + '</div>' : '') +
+        '</section>'
+      );
+    }
+
+    var body;
+    if (!kw) {
+      body = '<p class="filter-empty">输入关键词，搜索全部 ' + BOOKS.length + ' 本书的金句、方法论与书名</p>';
+    } else if (!groups.length) {
+      body = '<p class="filter-empty">没有找到与「' + esc(kw) + '」相关的内容，换个关键词试试</p>';
+    } else {
+      body =
+        '<div id="search-results">' + groups.slice(0, shown).map(groupHtml).join('') + '</div>' +
+        (shown < groups.length
+          ? '<div class="search-more"><button type="button" class="tab" id="search-more">显示更多（还有 ' +
+            (groups.length - shown) + ' 本书）</button></div>'
+          : '');
+    }
+
+    app.innerHTML =
+      '<div class="shelf-head">' +
+        '<h1>搜索结果</h1>' +
+        '<p>' + (kw
+          ? '「' + hi(kw, re) + '」 · ' + groups.length + ' 本书' +
+            (groups.length ? ' · 金句 ' + quoteN + ' 条 · 方法论 ' + modelN + ' 个' : '')
+          : '共 ' + BOOKS.length + ' 本书') +
+        '</p>' +
+      '</div>' + body;
+
+    var moreBtn = document.getElementById('search-more');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', function () {
+        var from = shown;
+        shown = Math.min(shown + SEARCH_PAGE, groups.length);
+        document.getElementById('search-results').insertAdjacentHTML('beforeend', groups.slice(from, shown).map(groupHtml).join(''));
+        if (shown < groups.length) moreBtn.textContent = '显示更多（还有 ' + (groups.length - shown) + ' 本书）';
+        else moreBtn.parentNode.parentNode.removeChild(moreBtn.parentNode);
+      });
+    }
+
+    window.scrollTo(0, 0);
+  }
+
   /* ---------- 书籍详情视图 ---------- */
-  function renderBook(book) {
+  function renderBook(book, initKw) {
     document.title = book.title + ' · 拾句';
     var quotes = book.quotes || [];
     var fav = isFav(book.id);
 
-    var quoteCards = quotes.map(function (q, i) {
-      var examples = (q.examples || []).map(function (e) {
-        return (
-          '<div class="example-item">' +
-            '<span class="example-badge">' + esc(e.title) + '</span>' +
-            '<p>' + esc(e.text) + '</p>' +
-          '</div>'
-        );
-      }).join('');
-
-      return (
-        '<article class="quote-card" data-search="' + esc([q.quote, q.theme, q.interpretation, q.source].concat(
-          (q.examples || []).map(function (e) { return e.title + ' ' + e.text; })
-        ).join(' ').toLowerCase()) + '">' +
-          '<div class="q-head">' +
-            '<span class="q-index">No.' + String(i + 1).padStart(2, '0') + '</span>' +
-            '<span class="q-theme">' + esc(q.theme || '') + '</span>' +
-          '</div>' +
-          '<blockquote class="q-text">「' + esc(q.quote) + '」</blockquote>' +
-          '<div class="q-source">—— ' + esc(q.source || '') + '</div>' +
-          '<div class="q-section"><h3>解 读</h3><p>' + esc(q.interpretation) + '</p></div>' +
-          (examples ? '<div class="q-section"><h3>应用举例</h3>' + examples + '</div>' : '') +
-        '</article>'
-      );
-    }).join('');
-
-    var modelCards = (book.models || []).map(function (m, i) {
-      var points = (m.points || []).map(function (p) {
-        return '<li>' + esc(p) + '</li>';
-      }).join('');
-      var mExamples = (m.examples || []).map(function (e) {
-        return (
-          '<div class="example-item">' +
-            '<span class="example-badge">' + esc(e.title) + '</span>' +
-            '<p>' + esc(e.text) + '</p>' +
-          '</div>'
-        );
-      }).join('');
-
-      return (
-        '<article class="quote-card model-card" data-search="' + esc([m.name, m.en, m.source, m.core].concat(
-          m.points || []
-        ).concat(
-          (m.examples || []).map(function (e) { return e.title + ' ' + e.text; })
-        ).join(' ').toLowerCase()) + '">' +
-          '<div class="q-head">' +
-            '<span class="q-index">M' + String(i + 1).padStart(2, '0') + '</span>' +
-            '<span class="q-theme model-badge">方法论</span>' +
-          '</div>' +
-          '<h3 class="m-name">' + esc(m.name) + '</h3>' +
-          (m.en ? '<div class="m-en">' + esc(m.en) + '</div>' : '') +
-          '<div class="q-source">—— ' + esc(m.source || '') + '</div>' +
-          '<div class="q-section"><h3>核心思想</h3><p>' + esc(m.core) + '</p></div>' +
-          (points ? '<div class="q-section"><h3>要 点</h3><ul class="m-points">' + points + '</ul></div>' : '') +
-          (mExamples ? '<div class="q-section"><h3>应用举例</h3>' + mExamples + '</div>' : '') +
-        '</article>'
-      );
-    }).join('');
+    var quoteCards = quotes.map(function (q, i) { return quoteCardHtml(q, i); }).join('');
+    var modelCards = (book.models || []).map(function (m, i) { return modelCardHtml(m, i); }).join('');
 
     var hasModels = !!modelCards;
     var quoteCount = quotes.length;
@@ -292,7 +434,9 @@
     app.innerHTML =
       '<section class="book-hero" style="background:' + esc(book.gradient || 'linear-gradient(135deg,#555,#222)') + '">' +
         '<div class="container hero-inner">' +
-          '<a class="back-link" href="#/">← 返回书架</a>' +
+          '<a class="back-link" href="' + (initKw ? '#/search?q=' + encodeURIComponent(initKw) : '#/') + '">' +
+            (initKw ? '← 返回搜索结果' : '← 返回书架') +
+          '</a>' +
           '<div class="hero-emoji">' + esc(book.emoji || '📘') + '</div>' +
           '<h1>' + esc(book.title) + '</h1>' +
           (book.originalTitle ? '<div class="hero-original">' + esc(book.originalTitle) + '</div>' : '') +
@@ -349,15 +493,33 @@
       }
     }
 
-    tabButtons.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        tabButtons.forEach(function (b) { b.classList.toggle('active', b === btn); });
-        var showModels = btn.getAttribute('data-tab') === 'models';
-        modelList.hidden = !showModels;
-        quoteList.hidden = showModels;
-        applyFilter();
+    // 命中当前筛选词的卡片数
+    function matchCount(list) {
+      var kw = input.value.trim().toLowerCase(), n = 0;
+      list.querySelectorAll('.quote-card').forEach(function (card) {
+        if (card.getAttribute('data-search').indexOf(kw) !== -1) n++;
       });
+      return n;
+    }
+
+    function showTab(name) {
+      var showModels = name === 'models';
+      tabButtons.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-tab') === name); });
+      if (modelList) modelList.hidden = !showModels;
+      quoteList.hidden = showModels;
+      applyFilter();
+    }
+
+    tabButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () { showTab(btn.getAttribute('data-tab')); });
     });
+
+    // 从搜索结果进来（?q=关键词）：预填筛选词；金句无命中而方法论有命中时，直接切到方法论标签
+    if (initKw) {
+      input.value = initKw;
+      if (modelList && !matchCount(quoteList) && matchCount(modelList)) showTab('models');
+    }
+    applyFilter();
 
     input.addEventListener('input', applyFilter);
 
@@ -375,17 +537,24 @@
 
   /* ---------- 路由 ---------- */
   function route() {
-    var m = location.hash.match(/^#\/book\/(.+)$/);
-    if (m) {
-      var id = decodeURIComponent(m[1]);
+    closeSearch();
+    // #/book/{id}?q=关键词、#/search?q=关键词：? 后是查询串，? 前按 / 切段
+    var qi = location.hash.indexOf('?');
+    var segs = (qi === -1 ? location.hash : location.hash.slice(0, qi)).split('/');
+    var q = new URLSearchParams(qi === -1 ? '' : location.hash.slice(qi + 1)).get('q') || '';
+
+    if (segs[1] === 'search') { renderSearch(q); return; }
+    if (segs[1] === 'book' && segs[2]) {
+      var id = decodeURIComponent(segs[2]);
       var book = BOOKS.filter(function (b) { return b.id === id; })[0];
-      if (book) { renderBook(book); return; }
+      if (book) { renderBook(book, q); return; }
     }
     renderShelf();
   }
 
   window.addEventListener('hashchange', route);
   setupLogin();
+  setupSearch();
   renderAuthArea();
   route();
   // 已登录：打开页面时拉一次远端收藏，保持多设备一致

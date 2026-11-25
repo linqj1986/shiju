@@ -8,6 +8,7 @@
   --ink-light: #6b675e;
   --accent: #b08d3e;
   --accent-deep: #8a6d2f;
+  --accent-link: #7d6228; /* accent-deep 加深一档：小字号链接在浅底上对比度 ≥ 4.5:1 */
   --border: #e5dfd2;
   --shadow: 0 2px 12px rgba(60, 50, 30, .07);
   --serif: Georgia, 'Songti SC', 'STSong', 'SimSun', serif;
@@ -76,6 +77,52 @@ body {
 
 .btn-ghost { background: transparent; color: var(--ink-light); border: 1px solid var(--border); }
 .btn-ghost:hover { color: var(--accent-deep); border-color: var(--accent); }
+
+/* 头部搜索：桌面常驻一行；窄屏收进右侧按钮（见响应式） */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.search-toggle { display: none; }
+
+.header-search {
+  display: flex;
+  flex: 1 1 240px;
+  min-width: 0;
+  max-width: 460px;
+  margin: 0 auto;
+  align-self: center;
+}
+
+.header-search form { display: flex; gap: 8px; width: 100%; }
+
+.header-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 16px;
+  font-size: 16px; /* ≥16px：iOS 聚焦时不会自动放大页面 */
+  font-family: var(--sans);
+  border: 1px solid #8c8577; /* 比装饰性边框深：输入框边界对比度 ≥ 3:1 */
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.header-search input:focus { border-color: var(--accent-deep); box-shadow: 0 0 0 3px rgba(176, 141, 62, .15); }
+
+.header-search .btn-ghost { white-space: nowrap; }
 
 /* ============ 书架视图 ============ */
 .shelf-head { padding: 48px 0 28px; }
@@ -428,6 +475,60 @@ body {
   transform: rotate(45deg);
 }
 
+/* ============ 搜索结果 ============ */
+mark {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: rgba(224, 169, 46, .24);
+  color: inherit;
+}
+
+.search-group { padding: 28px 0 4px; border-top: 1px solid var(--border); }
+
+.sg-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+
+.sg-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  font-size: 26px;
+}
+
+.sg-info { flex: 1; min-width: 0; }
+
+.sg-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.sg-title:hover { color: var(--accent-deep); }
+
+.sg-meta { font-size: 13px; color: var(--ink-light); }
+
+/* 上下用 padding 撑大点击区（不改版式），手机上更好点 */
+.sg-more {
+  flex-shrink: 0;
+  padding: 10px 0;
+  margin: -10px 0;
+  font-size: 14px;
+  color: var(--accent-link);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sg-more:hover { text-decoration: underline; }
+
+.search-group .quote-list { padding: 0 0 28px; gap: 20px; }
+
+.search-more { display: flex; justify-content: center; padding: 4px 0 56px; }
+
 /* ============ 登录弹窗 ============ */
 /* margin:auto 恢复被顶部 * { margin:0 } reset 清掉的 UA 居中（dialog 居中依赖 margin:auto + inset:0） */
 dialog:modal { margin: auto; overscroll-behavior: contain; }
@@ -497,6 +598,36 @@ dialog::backdrop {
 }
 
 /* ============ 响应式 ============ */
+/* 头部搜索：一行放不下时收进右侧按钮，点击后展开独占一行（展开/收起见 app.js openSearch） */
+@media (max-width: 760px) {
+  .header-inner { flex-wrap: wrap; }
+  .header-auth { margin-left: 0; }
+
+  .search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 48px;
+    height: 48px;
+    margin-left: auto;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink-light);
+    cursor: pointer;
+    transition: color .2s, border-color .2s;
+  }
+
+  .search-toggle:hover, .site-header.search-open .search-toggle { color: var(--accent-deep); border-color: var(--accent); }
+
+  .header-search { display: none; }
+
+  .site-header.search-open .header-search { display: flex; flex: 1 0 100%; order: 3; max-width: none; }
+
+  .header-search input, .header-search .btn-ghost { min-height: 48px; }
+}
+
 @media (max-width: 640px) {
   .container { padding: 0 16px; }
   .brand-sub { display: none; }
@@ -510,4 +641,7 @@ dialog::backdrop {
   .q-text { font-size: 19px; }
   .m-name { font-size: 19px; }
   .section-head h2 { font-size: 20px; }
+  .sg-head { flex-wrap: wrap; gap: 10px; }
+  .sg-title { font-size: 17px; }
+  .search-group .quote-list { gap: 16px; }
 }
