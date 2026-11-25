@@ -259,7 +259,13 @@ body {
 .hero-fav.faved { background: #e0a92e; border-color: #e0a92e; }
 
 /* 标签页 */
-.tabs { display: flex; gap: 10px; padding: 26px 0 0; }
+/* 分类标签：窄屏放不下时整体换行，每个按钮保持完整不折字 */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 26px 0 0;
+}
 
 .tab {
   padding: 7px 22px;
@@ -271,6 +277,7 @@ body {
   border-radius: 999px;
   cursor: pointer;
   transition: color .2s, border-color .2s, background .2s;
+  white-space: nowrap;
 }
 
 .tab:hover { color: var(--accent-deep); border-color: var(--accent); }
