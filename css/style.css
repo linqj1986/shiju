@@ -603,23 +603,17 @@ dialog::backdrop {
   .header-inner { flex-wrap: wrap; }
   .header-auth { margin-left: 0; }
 
+  /* 尺寸与描边跟随 .btn-ghost（与登录按钮同高），只把左右内边距收窄成圆形图标钮 */
   .search-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     align-self: center;
-    width: 48px;
-    height: 48px;
     margin-left: auto;
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    background: transparent;
-    color: var(--ink-light);
-    cursor: pointer;
-    transition: color .2s, border-color .2s;
+    padding: 7px;
   }
 
-  .search-toggle:hover, .site-header.search-open .search-toggle { color: var(--accent-deep); border-color: var(--accent); }
+  .site-header.search-open .search-toggle { color: var(--accent-deep); border-color: var(--accent); }
 
   .header-search { display: none; }
 

@@ -64,6 +64,13 @@
       closeSearch();
       if (searchToggle.offsetParent) searchToggle.focus(); else searchInput.blur();
     });
+    // 窄屏展开后，点页面其他区域就收起。监听 pointerdown 而不是 blur：iOS 上点非可聚焦元素不会让输入框失焦。
+    // 搜索框自身与切换按钮除外，交给它们自己的 click（切换按钮若在此收起，随后的 click 会再次展开）
+    document.addEventListener('pointerdown', function (e) {
+      if (!siteHeader.classList.contains('search-open')) return;
+      if (e.target.closest && e.target.closest('#site-search, #search-toggle')) return;
+      closeSearch();
+    });
   }
 
   /* ---------- 登录与收藏（纯前端 + localStorage） ---------- */
